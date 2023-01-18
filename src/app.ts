@@ -4,11 +4,12 @@ import { Sequelize } from "sequelize";
 import cors from "cors";
 import morgan from "morgan";
 import Controller from "utils/interface/controller.interface";
+import Todo from "./model/todo.model";
+import sequelize from "./config/db.config";
 
 class App {
   private express: Application;
   private port: number;
-  public db: any = {};
 
   constructor(controllers: Controller[], port: number) {
     this.express = express();
@@ -19,15 +20,8 @@ class App {
     this.initialiseController(controllers);
   }
 
-  private async initialiseDatabase() {
-    this.db = pgConnect();
-
-    try {
-      await this.db.authenticate();
-      console.log("Connection has been established successfully");
-    } catch (err) {
-      console.error("Unable to connect to the database:", err);
-    }
+  private initialiseDatabase() {
+    sequelize.sync({});
   }
 
   private initialiseMiddleware(): void {
@@ -43,10 +37,7 @@ class App {
     });
   }
 
-  public listen() {
-    const { PORT } = process.env;
-    console.log(PORT);
-
+  public async listen() {
     this.express.listen(this.port, () => {
       console.log(`Test App listening on port ${this.port}`);
     });
